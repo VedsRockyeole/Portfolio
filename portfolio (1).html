@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vedant Yeole — Computer Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:        #0B1220;
+    --panel:      #101A2C;
+    --panel-2:    #16223A;
+    --line:       #24334F;
+    --text:       #E9EDF3;
+    --muted:      #8993A8;
+    --amber:      #F0A73C;
+    --amber-dim:  #F0A73C33;
+    --teal:       #5FD9C4;
+    --teal-dim:   #5FD9C433;
+
+    --display: 'Space Grotesk', sans-serif;
+    --body: 'Inter', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background:var(--ink);
+    color:var(--text);
+    font-family:var(--body);
+    line-height:1.6;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; }
+  }
+
+  /* ---------- blueprint grid backdrop ---------- */
+  .grid-bg{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:48px 48px;
+    opacity:0.16;
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 90%);
+            mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 90%);
+  }
+
+  .crosshair{
+    position:absolute; width:22px; height:22px; z-index:2; opacity:0.55;
+  }
+  .crosshair::before, .crosshair::after{
+    content:""; position:absolute; background:var(--amber);
+  }
+  .crosshair::before{ width:100%; height:1px; top:50%; left:0; }
+  .crosshair::after{ height:100%; width:1px; left:50%; top:0; }
+  .crosshair.tl{ top:20px; left:20px; }
+  .crosshair.tr{ top:20px; right:20px; }
+  .crosshair.bl{ bottom:20px; left:20px; }
+  .crosshair.br{ bottom:20px; right:20px; }
+
+  a{ color:inherit; text-decoration:none; }
+
+  /* ---------- nav ---------- */
+  nav{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 6vw;
+    background:rgba(11,18,32,0.78);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-mark{
+    font-family:var(--mono); font-size:13px; color:var(--amber);
+    letter-spacing:0.06em;
+  }
+  .nav-mark span{ color:var(--muted); }
+  .nav-links{ display:flex; gap:28px; }
+  .nav-links a{
+    font-family:var(--mono); font-size:12px; letter-spacing:0.08em;
+    color:var(--muted); text-transform:uppercase;
+    transition:color 0.2s ease;
+    position:relative;
+  }
+  .nav-links a:hover, .nav-links a:focus-visible{ color:var(--amber); }
+  .nav-links a:focus-visible{ outline:1px dashed var(--amber); outline-offset:4px; }
+  @media (max-width:760px){ .nav-links{ display:none; } }
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative; z-index:1;
+    min-height:92vh;
+    display:flex; flex-direction:column; justify-content:center;
+    padding:6vw 6vw 4vw;
+    max-width:1100px;
+  }
+  .eyebrow{
+    font-family:var(--mono); font-size:13px; color:var(--teal);
+    letter-spacing:0.12em; text-transform:uppercase;
+    display:flex; align-items:center; gap:10px; margin-bottom:22px;
+  }
+  .eyebrow::before{
+    content:""; width:26px; height:1px; background:var(--teal);
+  }
+  h1.name{
+    font-family:var(--display); font-weight:700;
+    font-size:clamp(2.6rem, 7vw, 5.4rem);
+    line-height:1.02; letter-spacing:-0.02em;
+    color:var(--text);
+  }
+  h1.name .accent{ color:var(--amber); }
+  .role-line{
+    font-family:var(--body); font-weight:500;
+    font-size:clamp(1.1rem, 2.4vw, 1.5rem);
+    color:var(--muted);
+    margin-top:20px; max-width:640px;
+  }
+
+  .terminal{
+    margin-top:44px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    max-width:600px;
+    overflow:hidden;
+    box-shadow:0 30px 60px -30px rgba(0,0,0,0.6);
+  }
+  .terminal-bar{
+    display:flex; align-items:center; gap:8px;
+    padding:10px 14px;
+    background:var(--panel-2);
+    border-bottom:1px solid var(--line);
+  }
+  .dot{ width:9px; height:9px; border-radius:50%; background:var(--line); }
+  .terminal-title{
+    margin-left:8px; font-family:var(--mono); font-size:11px; color:var(--muted);
+  }
+  .terminal-body{
+    padding:18px 18px 22px;
+    font-family:var(--mono); font-size:13.5px;
+    color:var(--text); min-height:118px;
+  }
+  .terminal-body .prompt{ color:var(--teal); }
+  .terminal-body .out{ color:var(--muted); }
+  .cursor{
+    display:inline-block; width:7px; height:14px; background:var(--amber);
+    margin-left:2px; vertical-align:middle;
+    animation:blink 1s steps(1) infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  .hero-cta{ display:flex; gap:16px; margin-top:38px; flex-wrap:wrap; }
+  .btn{
+    font-family:var(--mono); font-size:13px; letter-spacing:0.04em;
+    padding:13px 22px; border-radius:6px;
+    border:1px solid var(--line);
+    transition:border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+  }
+  .btn-primary{ background:var(--amber); color:var(--ink); border-color:var(--amber); font-weight:600; }
+  .btn-primary:hover{ transform:translateY(-2px); }
+  .btn-ghost{ color:var(--text); }
+  .btn-ghost:hover{ border-color:var(--teal); color:var(--teal); transform:translateY(-2px); }
+  .btn:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+
+  /* ---------- shared module scaffolding ---------- */
+  .module{
+    position:relative; z-index:1;
+    max-width:1100px;
+    margin:0 auto;
+    padding:100px 6vw 20px;
+  }
+  .module-head{
+    display:flex; align-items:baseline; gap:16px;
+    margin-bottom:44px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:18px;
+  }
+  .module-tag{
+    font-family:var(--mono); font-size:12px; color:var(--amber);
+    letter-spacing:0.1em; white-space:nowrap;
+  }
+  .module-title{
+    font-family:var(--display); font-weight:600;
+    font-size:clamp(1.5rem, 3vw, 2.1rem);
+  }
+
+  .reveal{ opacity:0; transform:translateY(22px); transition:opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.in-view{ opacity:1; transform:translateY(0); }
+
+  /* ---------- about ---------- */
+  .about-grid{
+    display:grid; grid-template-columns:1.3fr 1fr; gap:48px;
+  }
+  @media (max-width:760px){ .about-grid{ grid-template-columns:1fr; } }
+  .about-text p{ color:var(--muted); font-size:1.02rem; max-width:56ch; }
+  .about-text p + p{ margin-top:16px; }
+  .about-text strong{ color:var(--text); font-weight:600; }
+
+  .stat-rail{ display:flex; flex-direction:column; gap:0; border-left:1px solid var(--line); padding-left:28px; }
+  .stat{ padding:16px 0; border-bottom:1px solid var(--line); }
+  .stat:last-child{ border-bottom:none; }
+  .stat-num{ font-family:var(--display); font-size:2rem; font-weight:700; color:var(--amber); }
+  .stat-label{ font-family:var(--mono); font-size:12px; color:var(--muted); letter-spacing:0.05em; text-transform:uppercase; margin-top:4px; }
+
+  /* ---------- stack ---------- */
+  .stack-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden;
+  }
+  .stack-cell{ background:var(--panel); padding:26px 24px; }
+  .stack-cell-label{
+    font-family:var(--mono); font-size:11px; color:var(--teal);
+    letter-spacing:0.1em; text-transform:uppercase; margin-bottom:14px; display:block;
+  }
+  .chip-row{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{
+    font-family:var(--mono); font-size:12.5px;
+    padding:6px 12px; border:1px solid var(--line); border-radius:20px;
+    color:var(--text); background:var(--panel-2);
+    transition:border-color 0.2s ease, color 0.2s ease;
+  }
+  .chip:hover{ border-color:var(--amber); color:var(--amber); }
+
+  /* ---------- experience / build log ---------- */
+  .log-entry{
+    display:grid; grid-template-columns:150px 1fr; gap:32px;
+    padding:32px 0; border-top:1px solid var(--line);
+  }
+  .log-entry:last-child{ border-bottom:1px solid var(--line); }
+  @media (max-width:640px){ .log-entry{ grid-template-columns:1fr; gap:10px; } }
+  .log-date{ font-family:var(--mono); font-size:12.5px; color:var(--muted); padding-top:4px; }
+  .log-role{ font-family:var(--display); font-size:1.25rem; font-weight:600; }
+  .log-org{ font-family:var(--mono); font-size:12.5px; color:var(--amber); margin-top:4px; letter-spacing:0.03em; }
+  .log-points{ margin-top:14px; list-style:none; }
+  .log-points li{
+    position:relative; padding-left:20px; color:var(--muted); font-size:0.97rem; margin-top:8px;
+  }
+  .log-points li::before{
+    content:"▸"; position:absolute; left:0; color:var(--teal); font-size:0.85em;
+  }
+
+  /* ---------- projects ---------- */
+  .project-grid{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  @media (max-width:760px){ .project-grid{ grid-template-columns:1fr; } }
+  .project-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:30px;
+    display:flex; flex-direction:column;
+    transition:border-color 0.25s ease, transform 0.25s ease;
+  }
+  .project-card:hover{ border-color:var(--amber-dim); transform:translateY(-4px); }
+  .project-kicker{ font-family:var(--mono); font-size:11px; color:var(--muted); letter-spacing:0.1em; text-transform:uppercase; }
+  .project-title{ font-family:var(--display); font-size:1.4rem; font-weight:600; margin-top:10px; }
+  .project-desc{ color:var(--muted); margin-top:14px; font-size:0.97rem; flex-grow:1; }
+  .project-desc li{ margin-top:8px; margin-left:18px; }
+  .project-tags{ display:flex; flex-wrap:wrap; gap:8px; margin-top:20px; }
+  .tag{ font-family:var(--mono); font-size:11px; color:var(--teal); border:1px solid var(--teal-dim); padding:4px 10px; border-radius:4px; }
+
+  /* ---------- education ---------- */
+  .edu-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:32px; display:flex; justify-content:space-between; gap:24px; flex-wrap:wrap;
+  }
+  .edu-name{ font-family:var(--display); font-size:1.2rem; font-weight:600; }
+  .edu-meta{ font-family:var(--mono); font-size:12.5px; color:var(--muted); margin-top:8px; }
+  .edu-cgpa{ text-align:right; }
+  .edu-cgpa .num{ font-family:var(--display); font-size:2rem; color:var(--amber); font-weight:700; }
+  .edu-cgpa .lbl{ font-family:var(--mono); font-size:11px; color:var(--muted); letter-spacing:0.08em; }
+
+  /* ---------- contact / footer ---------- */
+  footer{
+    position:relative; z-index:1;
+    margin-top:120px;
+    padding:90px 6vw 50px;
+    border-top:1px solid var(--line);
+    text-align:center;
+  }
+  .contact-title{
+    font-family:var(--display); font-weight:700;
+    font-size:clamp(2rem, 5vw, 3.2rem);
+    max-width:720px; margin:0 auto;
+  }
+  .contact-title .accent{ color:var(--amber); }
+  .contact-sub{ color:var(--muted); margin-top:18px; font-size:1rem; }
+  .contact-links{ display:flex; justify-content:center; gap:18px; margin-top:36px; flex-wrap:wrap; }
+  .contact-links a{
+    font-family:var(--mono); font-size:13px;
+    padding:12px 20px; border:1px solid var(--line); border-radius:6px;
+    transition:border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  }
+  .contact-links a:hover{ border-color:var(--amber); color:var(--amber); transform:translateY(-2px); }
+  .foot-note{ margin-top:60px; font-family:var(--mono); font-size:11px; color:var(--line); }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+
+<nav>
+  <div class="nav-mark">VY<span>_2026</span></div>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#stack">Stack</a>
+    <a href="#log">Log</a>
+    <a href="#projects">Projects</a>
+    <a href="#education">Edu</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="crosshair tl"></div>
+  <div class="crosshair tr"></div>
+
+  <div class="eyebrow">B.E. Computer Engineering, 2026 · Actively seeking full-time roles</div>
+  <h1 class="name">Vedant<br>Yeole<span class="accent">.</span></h1>
+  <p class="role-line">Computer Engineering graduate building full-stack products and object-detection models — fluent in Java, C++ and the modern JS stack.</p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      <div class="terminal-title">vedant@portfolio — zsh</div>
+    </div>
+    <div class="terminal-body" id="termBody"></div>
+  </div>
+
+  <div class="hero-cta">
+    <a class="btn btn-primary" href="#projects">View projects</a>
+    <a class="btn btn-ghost" href="#contact">Get in touch</a>
+  </div>
+</header>
+
+<main>
+
+  <section class="module" id="about">
+    <div class="module-head">
+      <span class="module-tag">01 · README</span>
+      <span class="module-title">About</span>
+    </div>
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <p>I'm a <strong>Computer Engineering graduate</strong> from Genba Sopanrao Moze College of Engineering, Pune (2022 – 2026). I like building things end to end — from a REST API and its database schema up through the interface someone actually clicks on.</p>
+        <p>My foundation is in <strong>Data Structures &amp; Algorithms</strong> and problem solving, and I've put it to work across two internships and a computer-vision project, shipping features that measurably improved load times and workflow efficiency.</p>
+        <p>I communicate clearly, adapt fast to new stacks, and care about the 25% you save someone by writing the tighter version of the code.</p>
+      </div>
+      <div class="stat-rail reveal">
+        <div class="stat">
+          <div class="stat-num">8.65</div>
+          <div class="stat-label">CGPA / 10.0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">2</div>
+          <div class="stat-label">Internships completed</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">30%</div>
+          <div class="stat-label">Best efficiency gain shipped</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="module" id="stack">
+    <div class="module-head">
+      <span class="module-tag">02 · STACK</span>
+      <span class="module-title">Technical Skills</span>
+    </div>
+    <div class="stack-grid reveal">
+      <div class="stack-cell">
+        <span class="stack-cell-label">Languages</span>
+        <div class="chip-row">
+          <span class="chip">Java</span><span class="chip">C++</span><span class="chip">C</span><span class="chip">JavaScript</span>
+        </div>
+      </div>
+      <div class="stack-cell">
+        <span class="stack-cell-label">Core CS</span>
+        <div class="chip-row">
+          <span class="chip">Data Structures</span><span class="chip">Algorithms</span><span class="chip">OOP</span><span class="chip">Problem Solving</span>
+        </div>
+      </div>
+      <div class="stack-cell">
+        <span class="stack-cell-label">Web</span>
+        <div class="chip-row">
+          <span class="chip">HTML</span><span class="chip">CSS</span><span class="chip">React.js</span><span class="chip">Node.js</span><span class="chip">Express.js</span>
+        </div>
+      </div>
+      <div class="stack-cell">
+        <span class="stack-cell-label">Databases</span>
+        <div class="chip-row">
+          <span class="chip">SQL</span><span class="chip">MongoDB</span>
+        </div>
+      </div>
+      <div class="stack-cell">
+        <span class="stack-cell-label">Tools</span>
+        <div class="chip-row">
+          <span class="chip">Git</span><span class="chip">GitHub</span><span class="chip">VS Code</span>
+        </div>
+      </div>
+      <div class="stack-cell">
+        <span class="stack-cell-label">Working style</span>
+        <div class="chip-row">
+          <span class="chip">Communication</span><span class="chip">Teamwork</span><span class="chip">Adaptability</span><span class="chip">Critical Thinking</span><span class="chip">Time Management</span><span class="chip">Leadership</span><span class="chip">Attention to Detail</span><span class="chip">Willingness to Learn</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="module" id="log">
+    <div class="module-head">
+      <span class="module-tag">03 · BUILD LOG</span>
+      <span class="module-title">Experience</span>
+    </div>
+
+    <div class="log-entry reveal">
+      <div class="log-date">Jan 2025 —<br>May 2025</div>
+      <div>
+        <div class="log-role">Technology Intern</div>
+        <div class="log-org">Jyotirgamya Solutions Pvt. Ltd.</div>
+        <ul class="log-points">
+          <li>Developed an ERP-based task management system, improving efficiency by 30%.</li>
+          <li>Built scalable front-end components with React.js, cutting UI load time by 25%.</li>
+          <li>Implemented backend services with Node.js, Express.js, and REST APIs.</li>
+          <li>Designed and managed the MongoDB database, and contributed to documentation and team collaboration.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="log-entry reveal">
+      <div class="log-date">Jun 2024 —<br>Jul 2024</div>
+      <div>
+        <div class="log-role">Web Development Intern</div>
+        <div class="log-org">Tech Alpha</div>
+        <ul class="log-points">
+          <li>Developed responsive web applications using HTML, CSS, and JavaScript.</li>
+          <li>Improved application performance, reducing load time by 30%.</li>
+          <li>Used Git for version control while collaborating in a team-based workflow.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="module" id="projects">
+    <div class="module-head">
+      <span class="module-tag">04 · SHIPPED</span>
+      <span class="module-title">Projects</span>
+    </div>
+    <div class="project-grid">
+      <div class="project-card reveal">
+        <span class="project-kicker">Web Application</span>
+        <div class="project-title">E-Commerce Website</div>
+        <ul class="project-desc">
+          <li>Responsive storefront with product listing, cart, and checkout flow.</li>
+          <li>Applied core programming logic and problem-solving to key feature implementation.</li>
+          <li>Ensured cross-browser compatibility and optimized page performance.</li>
+        </ul>
+        <div class="project-tags">
+          <span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JavaScript</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal">
+        <span class="project-kicker">Computer Vision</span>
+        <div class="project-title">Deep Learning-Based Pothole Detection</div>
+        <ul class="project-desc">
+          <li>Built an object detection model with YOLOv8 to identify potholes from image data.</li>
+          <li>Handled data preprocessing, annotation, model training, and evaluation.</li>
+          <li>Improved model accuracy through hyperparameter tuning and optimization.</li>
+        </ul>
+        <div class="project-tags">
+          <span class="tag">Deep Learning</span><span class="tag">YOLOv8</span><span class="tag">Python</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="module" id="education">
+    <div class="module-head">
+      <span class="module-tag">05 · EDUCATION</span>
+      <span class="module-title">Academics</span>
+    </div>
+    <div class="edu-card reveal">
+      <div>
+        <div class="edu-name">B.E. in Computer Engineering</div>
+        <div class="edu-meta">Genba Sopanrao Moze College of Engineering, Pune</div>
+        <div class="edu-meta">Nov 2022 — May 2026 · ✓ Completed</div>
+      </div>
+      <div class="edu-cgpa">
+        <div class="num">8.65</div>
+        <div class="lbl">CGPA / 10.0</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer id="contact">
+  <div class="crosshair bl"></div>
+  <div class="crosshair br"></div>
+  <div class="contact-title">Build complete. Ready to <span class="accent">deploy.</span></div>
+  <p class="contact-sub">B.E. Computer Engineering, Class of 2026 — open to full-time roles, usually reply within a day.</p>
+  <div class="contact-links">
+    <a href="mailto:vedantyeole5@gmail.com">✉ vedantyeole5@gmail.com</a>
+    <a href="tel:+918767581013">☎ +91 87675 81013</a>
+    <a href="https://www.linkedin.com/in/vedant-yeole-35ab58270" target="_blank" rel="noopener">LinkedIn ↗</a>
+    <a href="https://github.com/VedsRockyeole" target="_blank" rel="noopener">GitHub ↗</a>
+  </div>
+  <div class="foot-note">BUILT BY VEDANT YEOLE — RENDERED FROM SOURCE, NOT A TEMPLATE</div>
+</footer>
+
+<script>
+  // Terminal typing sequence
+  const lines = [
+    { p: '~$ ', c: 'whoami', out: 'vedant_yeole — computer engineering graduate' },
+    { p: '~$ ', c: 'cat focus.txt', out: 'full-stack development · DSA · computer vision' },
+    { p: '~$ ', c: 'status', out: 'open_to_work: true' }
+  ];
+  const body = document.getElementById('termBody');
+  let li = 0, ci = 0, phase = 'type';
+  const speed = 32;
+
+  function typeLoop(){
+    if(li >= lines.length){
+      body.innerHTML += `<div><span class="cursor"></span></div>`;
+      return;
+    }
+    const cur = lines[li];
+    if(phase === 'type'){
+      if(ci === 0){
+        body.innerHTML += `<div class="line-${li}"><span class="prompt">${cur.p}</span><span class="typed-${li}"></span></div>`;
+      }
+      const target = body.querySelector(`.typed-${li}`);
+      if(ci <= cur.c.length){
+        target.textContent = cur.c.slice(0, ci);
+        ci++;
+        setTimeout(typeLoop, speed);
+      } else {
+        phase = 'out';
+        setTimeout(typeLoop, 260);
+      }
+    } else if(phase === 'out'){
+      body.innerHTML += `<div class="out">${cur.out}</div>`;
+      li++; ci = 0; phase = 'type';
+      setTimeout(typeLoop, 380);
+    }
+  }
+  typeLoop();
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('in-view'); });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
